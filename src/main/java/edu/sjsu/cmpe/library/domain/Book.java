@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.Valid;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
 
 public class Book {
     private long isbn;
@@ -15,7 +19,10 @@ public class Book {
     private int numpages;
     private String status;
     private List<Review> reviews = new ArrayList<Review>();
-    private ArrayList<Author> author = new ArrayList<Author>();
+    @NotEmpty
+	@Valid
+	@JsonProperty
+    private Author[] authors;
     // add more fields here
 
     /**
@@ -123,7 +130,7 @@ public class Book {
      * @param review
      *            the title to set
      */
-    public void setReview(ArrayList<Review> reviews) {
+    public void setReview(List<Review> reviews) {
 	this.reviews = reviews;
     }
     
@@ -131,20 +138,16 @@ public class Book {
     	return this.reviews.get(reviewid);
         }
     
-    /**
-     * @return the author
-     */
-    public ArrayList<Author> getAuthor() {
-	return author;
-    }
+    public Author[] getAuthors() {
+		return authors;
+	}
 
-    /**
-     * @param author
-     *            the title to set
-     */
-    public void setAuthor(ArrayList<Author> author) {
-	this.author = author;
-    }
     
+    public void setAuthors(Author[] authors) {
+		this.authors = authors;
+	}
     
+    public  Author getbookAuthor(int authorid) {
+    	return this.authors[authorid];
+        }    
 }

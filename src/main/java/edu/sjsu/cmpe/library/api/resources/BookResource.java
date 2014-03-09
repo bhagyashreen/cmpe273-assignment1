@@ -20,8 +20,11 @@ import javax.ws.rs.core.Response;
 import com.yammer.dropwizard.jersey.params.LongParam;
 import com.yammer.metrics.annotation.Timed;
 
+import edu.sjsu.cmpe.library.domain.Author;
 import edu.sjsu.cmpe.library.domain.Book;
 import edu.sjsu.cmpe.library.domain.Review;
+import edu.sjsu.cmpe.library.dto.AuthorDto;
+import edu.sjsu.cmpe.library.dto.AuthorsDto;
 import edu.sjsu.cmpe.library.dto.BookDto;
 import edu.sjsu.cmpe.library.dto.LinkDto;
 import edu.sjsu.cmpe.library.dto.ReviewDto;
@@ -70,7 +73,13 @@ public class BookResource {
     public Response createBook(Book request) {
 	// Store the new book in the BookRepository so that we can retrieve it.
 	Book savedBook = bookRepository.saveBook(request);
+	int author_id = 1;
+	for (int author=0;author<savedBook.getAuthors().length;author++)
+	{
+		savedBook.getAuthors()[author].id = author_id;
+		author_id++;
 
+	}
 	String location = "/books/" + savedBook.getIsbn();
 	
 	    Map<String, Object> response_Map = new HashMap<String, Object>();
@@ -205,49 +214,41 @@ public class BookResource {
     	
     	}
     	
-   	
 
+
+    ////////VIEW  BOOK AUTHOR
+    @GET
+    @Path("/{isbn}/authors/{id}")
+    @Timed(name = "view-author")
+    public Response viewAuthor(@PathParam("isbn") long isbn, @PathParam("id") long id) {
+		int i=0;
+		Book book = bookRepository.getBookByISBN(isbn);
+
+		while (book.getbookAuthor(i).getID()!=id)
+		{
+			i++;
+		}
+		AuthorDto authorResponse = new AuthorDto(book.getbookAuthor(i));
+		authorResponse.addLink(new LinkDto("view-author", "/books/" + book.getIsbn() + "/authors/" + book.getbookAuthor(i).getID(), "GET"));
+
+	return Response.ok(authorResponse).build();
+    }
     
-////////VIEW  BOOK AUTHOR
-@GET
-@Path("/{isbn}/reviews/{review_id}")
-@Timed(name = "view-book-review")
+    
+    ////////VIEW  ALL BOOK AUTHORS
+    @GET
+    @Path("/{isbn}/authors")
+    @Timed(name = "view-all-authors")
+    public AuthorsDto viewAllAuthors(@PathParam("isbn") long isbn) {
 
-public ReviewDto viewReview (@PathParam("isbn") LongParam isbn,@PathParam("review_id") int reviewid ) {
+		Book book = bookRepository.getBookByISBN(isbn);
+		AuthorsDto authorResponse = new AuthorsDto(book.getAuthors());
 
-	Book book = bookRepository.getBookByISBN(isbn.get());
-	Review review =book.getbookReview(reviewid);
-	
-   	ReviewDto reviewResponse = new ReviewDto(review);
-   	
-   	reviewResponse.addLink(new LinkDto("view-book-review", "/books/" + book.getIsbn()+"/reviews/","GET"));
-	return reviewResponse;
-	  	
-	   }
-	
+	return authorResponse;
+    }
+    
+    
 
-////////VIEW ALL BOOK REVIEWS
-@GET
-@Path("/{isbn}/reviews")
-@Timed(name = "view-book-review")
-
-public Response viewallReviews (@PathParam("isbn") LongParam isbn ) {
-
-	Book book = bookRepository.getBookByISBN(isbn.get());
-
-	//Review review = book.getReview();
-
-	List<Review> review=book.getReview();
-	
-	ReviewsDto reviewResponse = new ReviewsDto(review);
-
-	reviewResponse.addLink(new LinkDto("view-book-review", "/books/" + book.getIsbn()+"/reviews/","GET"));
-	return Response.status(200).entity(reviewResponse).build();
-	
-	
-	}
-	
-    	
 
 	
     
