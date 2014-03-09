@@ -5,6 +5,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.yammer.dropwizard.jersey.params.LongParam;
+
 import edu.sjsu.cmpe.library.domain.Book;
 
 public class BookRepository implements BookRepositoryInterface {
@@ -57,5 +59,14 @@ public class BookRepository implements BookRepositoryInterface {
 		"ISBN was %s but expected greater than zero value", isbn);
 	return bookInMemoryMap.get(isbn);
     }
+   
+    
+    public void  deleteBook(Book book){
+    	    	
+    	Long isbn1 = book.getIsbn();
+    	bookInMemoryMap.remove(isbn1);
+    	//return isbn;
+    }
+   
 
 }

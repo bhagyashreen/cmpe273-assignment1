@@ -23,10 +23,12 @@ public interface BookRepositoryInterface {
      * Retrieve an existing book by ISBN
      * 
      * @param isbn
-     *            a valid ISBN
+     *            a valid ISBNB
      * @return a book instance
      */
     Book getBookByISBN(Long isbn);
+    
+     void deleteBook(Book book);
 
     // TODO: add other operations here!
 }
