@@ -18,12 +18,19 @@ public class Book {
     @JsonProperty("num-pages") 
     private int numpages;
     private String status;
-    private List<Review> reviews = new ArrayList<Review>();
     @NotEmpty
 	@Valid
 	@JsonProperty
     private Author[] authors;
     // add more fields here
+    
+    public List<Review> getReview() {
+		return reviews;
+	}
+    
+    public void setReviews(List<Review> reviews) {
+		this.reviews = reviews;
+	}
 
     /**
      * @return the isbn
@@ -122,17 +129,17 @@ public class Book {
     /**
      * @return the review
      */
-    public List<Review> getReview() {
-	return reviews;
-    }
+    @JsonProperty
+    private List<Review> reviews = new ArrayList<Review>();
 
     /**
      * @param review
      *            the title to set
      */
-    public void setReview(List<Review> reviews) {
+   /* public void setReview(List<Review> reviews) {
 	this.reviews = reviews;
     }
+    */
     
     public  Review getbookReview(int reviewid) {
     	return this.reviews.get(reviewid);

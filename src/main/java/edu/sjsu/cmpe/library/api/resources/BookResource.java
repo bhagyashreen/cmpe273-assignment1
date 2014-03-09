@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -27,6 +28,7 @@ import edu.sjsu.cmpe.library.dto.AuthorDto;
 import edu.sjsu.cmpe.library.dto.AuthorsDto;
 import edu.sjsu.cmpe.library.dto.BookDto;
 import edu.sjsu.cmpe.library.dto.LinkDto;
+import edu.sjsu.cmpe.library.dto.LinksDto;
 import edu.sjsu.cmpe.library.dto.ReviewDto;
 import edu.sjsu.cmpe.library.dto.ReviewsDto;
 import edu.sjsu.cmpe.library.repository.BookRepositoryInterface;
@@ -155,7 +157,7 @@ public class BookResource {
     @POST
     @Path("/{isbn}/reviews")
     @Timed(name = "create-review")
-    public Response createReview(@PathParam("isbn") LongParam isbn, Review reviews) {
+    public Response createReview(@PathParam("isbn") LongParam isbn, @Valid Review reviews) {
     	
     Book book = bookRepository.getBookByISBN(isbn.get());
     
@@ -177,42 +179,37 @@ public class BookResource {
     
 ////////VIEW PARTICULAR BOOK REVIEW
     @GET
-    @Path("/{isbn}/reviews/{review_id}")
-    @Timed(name = "view-book-review")
+    @Path("/{isbn}/reviews/{reviewid}")
+    @Timed(name = "view-review")
+    public Response viewReview(@PathParam("isbn") long isbn, @PathParam("reviewid") long reviewid) {
+		int i=0;
+		Book book = bookRepository.getBookByISBN(isbn);
 
-    public ReviewDto viewReview (@PathParam("isbn") LongParam isbn,@PathParam("review_id") int reviewid ) {
+		while (book.getbookReview(i).getID()!=reviewid)
+		{
+			i++;
+		}
 
-    	Book book = bookRepository.getBookByISBN(isbn.get());
-    	Review review =book.getbookReview(reviewid);
-    	
-       	ReviewDto reviewResponse = new ReviewDto(review);
-       	
-       	reviewResponse.addLink(new LinkDto("view-book-review", "/books/" + book.getIsbn()+"/reviews/","GET"));
-    	return reviewResponse;
-    	  	
-    	   }
+		ReviewDto reviewResponse = new ReviewDto(book.getbookReview(i));
+		LinksDto links = new LinksDto();
+    	links.addLink(new LinkDto("view-review", "/books/" + book.getIsbn() + "/reviews/" + book.getbookReview(i).getID(), "GET"));
+    	return Response.ok(links).build();
+    }
     	
 
     ////////VIEW ALL BOOK REVIEWS
     @GET
     @Path("/{isbn}/reviews")
-    @Timed(name = "view-book-review")
+    @Timed(name = "view-all-reviews")
+    public ReviewsDto viewallReviews(@PathParam("isbn") long isbn) {
 
-    public Response viewallReviews (@PathParam("isbn") LongParam isbn ) {
+		Book book = bookRepository.getBookByISBN(isbn);
+		ReviewsDto reviewResponse = new ReviewsDto(book.getReview());
 
-    	Book book = bookRepository.getBookByISBN(isbn.get());
-
-    	//Review review = book.getReview();
-
-    	List<Review> review=book.getReview();
-    	
-    	ReviewsDto reviewResponse = new ReviewsDto(review);
-
-    	reviewResponse.addLink(new LinkDto("view-book-review", "/books/" + book.getIsbn()+"/reviews/","GET"));
-    	return Response.status(200).entity(reviewResponse).build();
+	return reviewResponse;
+    }
     	
     	
-    	}
     	
 
 
